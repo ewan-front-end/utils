@@ -1,0 +1,31 @@
+{
+  "name": "utils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bundle.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "build": "NODE_ENV=production rollup -c",
+    "dev": "rollup -c -w",
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ewan-front-end/utils.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ewan-front-end/utils/issues"
+  },
+  "homepage": "https://github.com/ewan-front-end/utils#readme",
+  "dependencies": {
+    "@babel/core": "^7.17.10",
+    "@babel/plugin-transform-runtime": "^7.17.10",
+    "@babel/preset-env": "^7.17.10",
+    "core-js": "^3.22.3"
+  }
+}

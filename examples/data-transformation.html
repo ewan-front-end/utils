@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <pre>
+    <div class="tree"></div>
+</pre>
+</body>
+
+</html>
+<script>
+    const bitsMapComplement = {
+        8: '00000000',
+        16: '0000000000000000',
+        32: '00000000000000000000000000000000'
+    }
+    function binComplement(bin, bits) {
+        const complement = bitsMapComplement[bits] || ''
+        return complement ? (complement + bin).slice(bin.length, bin.length + bits) : bin
+    }
+
+    function charToBin(char, bits, split) {
+        if (typeof char !== 'string' || char === '') return ''
+        split = split || ' '
+        let binStr = ''
+        for (var i = 0; i < char.length; i++) {
+            let bin = char.charCodeAt(i).toString(2)
+            bin = binComplement(bin, bits)
+            binStr += binStr ? split + bin : bin
+        }
+        return binStr
+    }
+    function binToChar(bin, split) {
+        let char = ''
+        split = split || ' '
+        bin.split(split).forEach(b => {
+            char += String.fromCharCode(parseInt(b, 2))
+        })
+        return char
+    }
+
+    const b = { name: 'ewan', content: '数据转为字符串' }
+    const splitStr = ' '
+    let a = charToBin(JSON.stringify(b), 'a', splitStr)
+    console.log(a, a[0].length)
+    console.log(binToChar(a, splitStr))
+
+</script>
