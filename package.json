@@ -1,9 +1,11 @@
 {
-  "name": "utils",
+  "name": "@seahan/utils",
   "version": "1.0.0",
-  "description": "",
+  "description": "通用工具集",
+  "author": "ewan",
+  "license": "ISC",
   "main": "dist/ewan.cjs.js",    
-  "module": "dist/ewan.esm.js",  
+  "module": "es/ewan.esm.js",    
   "browser": "dist/ewan.umd.js", 
   "directories": {
     "example": "examples"
@@ -11,15 +13,16 @@
   "scripts": {
     "build": "NODE_ENV=production rollup -c",
     "dev": "rollup -c -w",
-    "test": "node test/test.js"
+    "test": "node test/index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ewan-front-end/utils.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "javascript",
+    "library"
+  ],
   "bugs": {
     "url": "https://github.com/ewan-front-end/utils/issues"
   },
@@ -29,5 +32,6 @@
     "@babel/plugin-transform-runtime": "^7.17.10",
     "@babel/preset-env": "^7.17.10",
     "core-js": "^3.22.3"
-  }
+  },
+  "files": ["dist", "lib", "es"]
 }

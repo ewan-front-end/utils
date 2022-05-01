@@ -1,16 +1,40 @@
 const fs = require('fs')
-const path= require("path")
+const path = require("path")
+/** 主要版本 */
+let major = process.version.match(/v([0-9]*).([0-9]*)/)[1]
+/** 特性版本 */
+let minor = process.version.match(/v([0-9]*).([0-9]*)/)[2]
+function copyDirSync(source, destination) {
+    // 如果存在文件夹 先递归删除该文件夹
+    if (fs.existsSync(destination)) fs.rmSync(destination, { recursive: true })
+    // 新建文件夹 递归新建
+    fs.mkdirSync(destination, { recursive: true });
+    // 读取源文件夹
+    let rd = fs.readdirSync(source)
+    for (const fd of rd) {
+        // 循环拼接源文件夹/文件全名称
+        let sourceFullName = source + "/" + fd;
+        // 循环拼接目标文件夹/文件全名称
+        let destFullName = destination + "/" + fd;
+        // 读取文件信息
+        let lstatRes = fs.lstatSync(sourceFullName)
+        // 是否是文件
+        if (lstatRes.isFile()) fs.copyFileSync(sourceFullName, destFullName);
+        // 是否是文件夹
+        if (lstatRes.isDirectory()) copyDirSync(sourceFullName, destFullName);
+    }
+}
 
 // 递归创建目录 同步方法
 function checkDirSync(dirname) {
     if (fs.existsSync(dirname)) {
         // console.log('目录已存在：' + dirname)
-        return {message: "目录已存在", state: 1}
+        return { message: "目录已存在", state: 1 }
     } else {
         if (checkDirSync(path.dirname(dirname))) {
             try {
-                fs.mkdirSync(dirname)                
-                return {message: "目录已创建", state: 2}
+                fs.mkdirSync(dirname)
+                return { message: "目录已创建", state: 2 }
             } catch (err) {
                 console.error(err)
             }
@@ -18,7 +42,7 @@ function checkDirSync(dirname) {
     }
 }
 
-module.exports = {    
+module.exports = {
     writeFileSync: (absPath, content, next) => {
         typeof content !== "string" && (content = JSON.stringify(content, null, 4))
         try {
@@ -26,17 +50,17 @@ module.exports = {
             next && next()
         } catch (err) {
             console.error(err)
-        }        
+        }
     },
-    writeFile: (absPath, content, success) => { 
+    writeFile: (absPath, content, success) => {
         typeof content !== "string" && (content = JSON.stringify(content, null, 4))
-        fs.writeFile(absPath, content, { encoding: 'utf8' }, err => { 
-            if(err){ 
-                console.log(err) 
+        fs.writeFile(absPath, content, { encoding: 'utf8' }, err => {
+            if (err) {
+                console.log(err)
             } else {
                 success && success()
                 !success && console.log('written: ' + absPath)
-            } 
+            }
         })
     },
     readFile: (path, ifNoCreateOne) => {
@@ -53,7 +77,7 @@ module.exports = {
         const next = editHandler(fileObj)
         next && module.exports.writeFile(path, `module.exports = ${JSON.stringify(fileObj, null, 4)}`)
     },
-    mkdirSync(absPath, next){
+    mkdirSync(absPath, next) {
         let res = checkDirSync(absPath)
         next && next(res)
     },
@@ -83,8 +107,15 @@ module.exports = {
             wstream.on('finish', () => { resolve(true) })
         })
     },
-    copyFileSync(from, to){
+    copyFileSync(from, to) {
         fs.copyFileSync(from, to)
+    },
+    copyFolderSync(source, destination) {
+        if (Number(major) < 16 || Number(major) == 16 && Number(minor) < 7) {
+            copyDirSync(source, destination)
+        } else {
+            fs.cpSync(source, destination, { force: true, recursive: true })
+        }
     },
     existsSync(path) {
         return fs.existsSync(path)
