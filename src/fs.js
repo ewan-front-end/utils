@@ -41,6 +41,17 @@ function checkDirSync(dirname) {
         }
     }
 }
+const writeFile = (absPath, content, success) => {
+    typeof content !== "string" && (content = JSON.stringify(content, null, 4))
+    fs.writeFile(absPath, content, { encoding: 'utf8' }, err => {
+        if (err) {
+            console.log(err)
+        } else {
+            success && success()
+            !success && console.log('written: ' + absPath)
+        }
+    })
+}
 
 module.exports = {
     writeFileSync: (absPath, content, next) => {
@@ -52,17 +63,7 @@ module.exports = {
             console.error(err)
         }
     },
-    writeFile: (absPath, content, success) => {
-        typeof content !== "string" && (content = JSON.stringify(content, null, 4))
-        fs.writeFile(absPath, content, { encoding: 'utf8' }, err => {
-            if (err) {
-                console.log(err)
-            } else {
-                success && success()
-                !success && console.log('written: ' + absPath)
-            }
-        })
-    },
+    writeFile,
     readFile: (path, ifNoCreateOne) => {
         if (fs.existsSync(path)) {
             return fs.readFileSync(path, 'utf8')
@@ -75,7 +76,7 @@ module.exports = {
     editWritCommonFile: (path, editHandler) => {
         const fileObj = require(path)
         const next = editHandler(fileObj)
-        next && module.exports.writeFile(path, `module.exports = ${JSON.stringify(fileObj, null, 4)}`)
+        next && writeFile(path, `module.exports = ${JSON.stringify(fileObj, null, 4)}`)
     },
     mkdirSync(absPath, next) {
         let res = checkDirSync(absPath)
@@ -118,6 +119,11 @@ module.exports = {
         } else {
             fs.cpSync(from, to, { force: true, recursive: true })
         }
+    },
+    editJson: (path, editHandler) => {
+        const fileObj = require(path)
+        editHandler(fileObj)
+        writeFile(path, JSON.stringify(fileObj, null, 4))
     },
     existsSync(path) {
         return fs.existsSync(path)

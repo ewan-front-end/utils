@@ -1,6 +1,10 @@
 const fs = require('fs')
 const path = require("path");
-console.log(process.cwd());
-// 读取文件信息
-let lstatRes = fs.lstatSync(path.join(process.cwd(), 'src'))
-console.log(lstatRes.isFile());
+
+
+const {editWritCommonFile} = require('../src/fs')
+
+editWritCommonFile(path.join(process.cwd(), 'package.json'), file => {
+    file.version = '2.3.4'
+    console.log(file);
+})
