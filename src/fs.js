@@ -4,24 +4,24 @@ const path = require("path")
 let major = process.version.match(/v([0-9]*).([0-9]*)/)[1]
 /** 特性版本 */
 let minor = process.version.match(/v([0-9]*).([0-9]*)/)[2]
-function copyDirSync(source, destination) {
+function copyDirSync(from, to) {
     // 如果存在文件夹 先递归删除该文件夹
-    if (fs.existsSync(destination)) fs.rmSync(destination, { recursive: true })
+    if (fs.existsSync(to)) fs.rmSync(to, { recursive: true })
     // 新建文件夹 递归新建
-    fs.mkdirSync(destination, { recursive: true });
+    fs.mkdirSync(to, { recursive: true });
     // 读取源文件夹
-    let rd = fs.readdirSync(source)
+    let rd = fs.readdirSync(from)
     for (const fd of rd) {
         // 循环拼接源文件夹/文件全名称
-        let sourceFullName = source + "/" + fd;
+        let fromFullName = from + "/" + fd;
         // 循环拼接目标文件夹/文件全名称
-        let destFullName = destination + "/" + fd;
+        let toFullName = to + "/" + fd;
         // 读取文件信息
-        let lstatRes = fs.lstatSync(sourceFullName)
+        let lstatRes = fs.lstatSync(fromFullName)
         // 是否是文件
-        if (lstatRes.isFile()) fs.copyFileSync(sourceFullName, destFullName);
+        if (lstatRes.isFile()) fs.copyFileSync(fromFullName, toFullName);
         // 是否是文件夹
-        if (lstatRes.isDirectory()) copyDirSync(sourceFullName, destFullName);
+        if (lstatRes.isDirectory()) copyDirSync(fromFullName, toFullName);
     }
 }
 
@@ -110,11 +110,16 @@ module.exports = {
     copyFileSync(from, to) {
         fs.copyFileSync(from, to)
     },
-    copyFolderSync(source, destination) {
+    copySync(from, to) {
+        let lstat = fs.lstatSync(from)
+        if (lstat.isFile()) {
+            fs.copyFileSync(from, to)
+            return
+        }
         if (Number(major) < 16 || Number(major) == 16 && Number(minor) < 7) {
-            copyDirSync(source, destination)
+            copyDirSync(from, to)
         } else {
-            fs.cpSync(source, destination, { force: true, recursive: true })
+            fs.cpSync(from, to, { force: true, recursive: true })
         }
     },
     existsSync(path) {
