@@ -107,9 +107,6 @@ module.exports = {
             wstream.on('finish', () => { resolve(true) })
         })
     },
-    copyFileSync(from, to) {
-        fs.copyFileSync(from, to)
-    },
     copySync(from, to) {
         let lstat = fs.lstatSync(from)
         if (lstat.isFile()) {
