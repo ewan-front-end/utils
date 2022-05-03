@@ -120,10 +120,10 @@ module.exports = {
             fs.cpSync(from, to, { force: true, recursive: true })
         }
     },
-    editJson: (path, editHandler) => {
+    editJson: (path, editHandler, success) => {
         const fileObj = require(path)
         editHandler(fileObj)
-        writeFile(path, JSON.stringify(fileObj, null, 4))
+        writeFile(path, JSON.stringify(fileObj, null, 4), success)
     },
     existsSync(path) {
         return fs.existsSync(path)
