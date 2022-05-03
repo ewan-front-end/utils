@@ -23,7 +23,7 @@ module.exports = {
      */
     checkbox: (title, options, defaultValue) => {
         title = title || 'Please multiple choice:'
-        defaultValue = defaultValue || options.slice(0, 1)
+        defaultValue = defaultValue || []
         return prompt('checkbox', title, {
             choices: options,
             default: defaultValue
