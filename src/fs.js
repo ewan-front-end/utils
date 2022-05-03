@@ -47,7 +47,7 @@ const writeFile = (absPath, content, success) => {
         if (err) {
             console.log(err)
         } else {
-            success && success()
+            success && success(absPath)
             !success && console.log('written: ' + absPath)
         }
     })
