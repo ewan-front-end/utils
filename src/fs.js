@@ -1,5 +1,6 @@
 const fs = require('fs')
-const path = require("path")
+const mkdirp = require('mkdirp')
+const Path = require("path")
 /** 主要版本 */
 let major = process.version.match(/v([0-9]*).([0-9]*)/)[1]
 /** 特性版本 */
@@ -31,7 +32,7 @@ function checkDirSync(dirname) {
         // console.log('目录已存在：' + dirname)
         return { message: "目录已存在", state: 1 }
     } else {
-        if (checkDirSync(path.dirname(dirname))) {
+        if (checkDirSync(Path.dirname(dirname))) {
             try {
                 fs.mkdirSync(dirname)
                 return { message: "目录已创建", state: 2 }
@@ -41,11 +42,13 @@ function checkDirSync(dirname) {
         }
     }
 }
-const writeFile = (absPath, content, success) => {
+const writeFile = async (absPath, content, success) => {
     typeof content !== "string" && (content = JSON.stringify(content, null, 4))
+    let dir = Path.dirname(absPath)
+    if (!fs.existsSync(dir)) await mkdirp(dir)
     fs.writeFile(absPath, content, { encoding: 'utf8' }, err => {
         if (err) {
-            console.log(err)
+            console.log('UTILS.fs.writeFile', err)
         } else {
             success && success(absPath)
             !success && console.log('written: ' + absPath)
