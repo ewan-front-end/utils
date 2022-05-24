@@ -73,7 +73,15 @@ function deleteDir(dest) {
 }
 
 module.exports = {
-    deleteDir,
+    del: dest => {
+        if (fs.existsSync(dest)) {
+            if (fs.statSync(dest).isDirectory()) {
+                deleteDir(dest)
+            } else {
+                fs.unlinkSync(dest)
+            }
+        }
+    },
     writeFileSync: (absPath, content, next) => {
         typeof content !== "string" && (content = JSON.stringify(content, null, 4))
         try {
