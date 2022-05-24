@@ -4,9 +4,9 @@
   "description": "通用工具集",
   "author": "ewan",
   "license": "ISC",
-  "main": "dist/ewan.cjs.js",    
-  "module": "es/ewan.esm.js",    
-  "browser": "dist/ewan.umd.js", 
+  "main": "dist/ewan.cjs.js",
+  "module": "es/ewan.esm.js",
+  "browser": "dist/ewan.umd.js",
   "directories": {
     "example": "examples"
   },
@@ -33,5 +33,12 @@
     "@babel/preset-env": "^7.17.10",
     "core-js": "^3.22.3"
   },
-  "files": ["dist", "lib", "es"]
+  "files": [
+    "dist",
+    "lib",
+    "es"
+  ],
+  "devDependencies": {
+    "mkdirp": "^1.0.4"
+  }
 }

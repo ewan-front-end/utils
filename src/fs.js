@@ -56,7 +56,24 @@ const writeFile = async (absPath, content, success) => {
     })
 }
 
+function deleteDir(dest) {
+    let files = []
+    if (fs.existsSync(dest)) {
+        files = fs.readdirSync(dest)
+        files.forEach((file, index) => {
+            const curPath = dest + "/" + file
+            if (fs.statSync(curPath).isDirectory()) {
+                deleteDir(curPath)
+            } else {
+                fs.unlinkSync(curPath)
+            }
+        })
+        fs.rmdirSync(dest)
+    }
+}
+
 module.exports = {
+    deleteDir,
     writeFileSync: (absPath, content, next) => {
         typeof content !== "string" && (content = JSON.stringify(content, null, 4))
         try {
