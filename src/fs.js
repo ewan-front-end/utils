@@ -82,6 +82,19 @@ module.exports = {
             }
         }
     },
+    delExclude: (dir, exc) => {
+        if (fs.existsSync(dir)) {
+            files = fs.readdirSync(dir)
+            files.forEach((file, index) => {
+                const curPath = dest + "/" + file
+                if (fs.statSync(curPath).isDirectory()) {
+                    deleteDir(curPath)
+                } else {
+                    fs.unlinkSync(curPath)
+                }
+            })
+        }
+    },
     writeFileSync: (absPath, content, next) => {
         typeof content !== "string" && (content = JSON.stringify(content, null, 4))
         try {
