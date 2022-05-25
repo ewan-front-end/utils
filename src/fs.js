@@ -48,8 +48,7 @@ function copyDirSync(from, to, clear) {
 
 const writeFile = async (absPath, content, success) => {
     typeof content !== "string" && (content = JSON.stringify(content, null, 4))
-    let dir = Path.dirname(absPath)
-    if (!fs.existsSync(dir)) await mkdirp(dir)
+    checkDirSync(Path.dirname(absPath))
     fs.writeFile(absPath, content, { encoding: 'utf8' }, err => {
         if (err) {
             console.log('UTILS.fs.writeFile', err)
