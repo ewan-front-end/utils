@@ -161,6 +161,7 @@ module.exports = {
     copySync(from, to, clear) {
         let lstat = fs.lstatSync(from)
         if (lstat.isFile()) {
+            checkDirSync(Path.dirname(to))
             fs.copyFileSync(from, to)
             return
         }
