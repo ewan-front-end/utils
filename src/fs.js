@@ -7,9 +7,9 @@ let major = process.version.match(/v([0-9]*).([0-9]*)/)[1]
 /** 特性版本 */
 let minor = process.version.match(/v([0-9]*).([0-9]*)/)[2]
 
-function copyDirSync(from, to) {
+function copyDirSync(from, to, clear) {
     // 如果存在文件夹 先递归删除该文件夹
-    if (fs.existsSync(to)) fs.rmSync(to, { recursive: true })
+    if (fs.existsSync(to) && clear) fs.rmSync(to, { recursive: true })
     // 新建文件夹 递归新建
     fs.mkdirSync(to, { recursive: true });
     // 读取源文件夹
@@ -24,7 +24,7 @@ function copyDirSync(from, to) {
         // 是否是文件
         if (lstatRes.isFile()) fs.copyFileSync(fromFullName, toFullName);
         // 是否是文件夹
-        if (lstatRes.isDirectory()) copyDirSync(fromFullName, toFullName);
+        if (lstatRes.isDirectory()) copyDirSync(fromFullName, toFullName, clear);
     }
 }
 
@@ -156,14 +156,14 @@ module.exports = {
             wstream.on('finish', () => { resolve(true) })
         })
     },
-    copySync(from, to) {
+    copySync(from, to, clear) {
         let lstat = fs.lstatSync(from)
         if (lstat.isFile()) {
             fs.copyFileSync(from, to)
             return
         }
         if (Number(major) < 16 || Number(major) == 16 && Number(minor) < 7) {
-            copyDirSync(from, to)
+            copyDirSync(from, to, clear)
         } else {
             fs.cpSync(from, to, { force: true, recursive: true })
         }
