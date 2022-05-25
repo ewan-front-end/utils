@@ -1,10 +1,12 @@
 const fs = require('fs')
 const mkdirp = require('mkdirp')
 const Path = require("path")
+
 /** 主要版本 */
 let major = process.version.match(/v([0-9]*).([0-9]*)/)[1]
 /** 特性版本 */
 let minor = process.version.match(/v([0-9]*).([0-9]*)/)[2]
+
 function copyDirSync(from, to) {
     // 如果存在文件夹 先递归删除该文件夹
     if (fs.existsSync(to)) fs.rmSync(to, { recursive: true })
@@ -56,44 +58,49 @@ const writeFile = async (absPath, content, success) => {
     })
 }
 
-function deleteDir(dest) {
-    let files = []
-    if (fs.existsSync(dest)) {
-        files = fs.readdirSync(dest)
+function deleteDir(dest, exc, keepDir) {
+    if (fs.existsSync(dest) && !exc.includes(dest)) {
+        let files = fs.readdirSync(dest)
         files.forEach((file, index) => {
-            const curPath = dest + "/" + file
+            const curPath = Path.join(dest, file)
             if (fs.statSync(curPath).isDirectory()) {
-                deleteDir(curPath)
+                deleteDir(curPath, exc)
             } else {
-                fs.unlinkSync(curPath)
+                !exc.includes(curPath) && fs.unlinkSync(curPath)
             }
         })
-        fs.rmdirSync(dest)
+        if (!keepDir) {
+            try {
+                fs.rmdirSync(dest)
+            } catch (err) { }
+        }
     }
 }
 
 module.exports = {
-    del: dest => {
+    /**
+     * 删除目标(文件/文件夹)
+     * @param {string} dest 目标目录
+     */
+    delDest: (dest, exc) => {
         if (fs.existsSync(dest)) {
             if (fs.statSync(dest).isDirectory()) {
-                deleteDir(dest)
+                deleteDir(dest, [])
             } else {
                 fs.unlinkSync(dest)
             }
         }
     },
-    delExclude: (dir, exc) => {
-        if (fs.existsSync(dir)) {
-            files = fs.readdirSync(dir)
-            files.forEach((file, index) => {
-                const curPath = dest + "/" + file
-                if (fs.statSync(curPath).isDirectory()) {
-                    deleteDir(curPath)
-                } else {
-                    fs.unlinkSync(curPath)
-                }
-            })
-        }
+    /**
+     * 删除目录
+     * @param {string} dir 目标目录
+     * @param {array} exc 排除项目(文件/文件夹)
+     */
+    delDirExc: (dir, exc) => {
+        exc.map((e, i) => {
+            exc[i] = Path.join(dir, e)
+        })
+        deleteDir(dir, exc, true)
     },
     writeFileSync: (absPath, content, next) => {
         typeof content !== "string" && (content = JSON.stringify(content, null, 4))
