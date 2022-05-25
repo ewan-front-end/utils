@@ -7,9 +7,27 @@ let major = process.version.match(/v([0-9]*).([0-9]*)/)[1]
 /** 特性版本 */
 let minor = process.version.match(/v([0-9]*).([0-9]*)/)[2]
 
+// 递归创建目录 同步方法
+function checkDirSync(dirname) {
+    if (fs.existsSync(dirname)) {
+        // console.log('目录已存在：' + dirname)
+        return { message: "目录已存在", state: 1 }
+    } else {
+        if (checkDirSync(Path.dirname(dirname))) {
+            try {
+                fs.mkdirSync(dirname)
+                return { message: "目录已创建", state: 2 }
+            } catch (err) {
+                console.error(err)
+            }
+        }
+    }
+}
+
 function copyDirSync(from, to, clear) {
     // 如果存在文件夹 先递归删除该文件夹
     if (fs.existsSync(to) && clear) fs.rmSync(to, { recursive: true })
+    checkDirSync(Path.dirname(to))
     // 新建文件夹 递归新建
     fs.mkdirSync(to, { recursive: true });
     // 读取源文件夹
@@ -28,22 +46,6 @@ function copyDirSync(from, to, clear) {
     }
 }
 
-// 递归创建目录 同步方法
-function checkDirSync(dirname) {
-    if (fs.existsSync(dirname)) {
-        // console.log('目录已存在：' + dirname)
-        return { message: "目录已存在", state: 1 }
-    } else {
-        if (checkDirSync(Path.dirname(dirname))) {
-            try {
-                fs.mkdirSync(dirname)
-                return { message: "目录已创建", state: 2 }
-            } catch (err) {
-                console.error(err)
-            }
-        }
-    }
-}
 const writeFile = async (absPath, content, success) => {
     typeof content !== "string" && (content = JSON.stringify(content, null, 4))
     let dir = Path.dirname(absPath)
