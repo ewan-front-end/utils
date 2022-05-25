@@ -1,5 +1,4 @@
 const fs = require('fs')
-const mkdirp = require('mkdirp')
 const Path = require("path")
 
 /** 主要版本 */
