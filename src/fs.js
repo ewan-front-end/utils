@@ -5,49 +5,27 @@ const Path = require("path")
 let major = process.version.match(/v([0-9]*).([0-9]*)/)[1]
 /** 特性版本 */
 let minor = process.version.match(/v([0-9]*).([0-9]*)/)[2]
+// code 0成功 1
+const returnMessage = (c, s, m, steps) => ({ code: c || 0, state: s || "success", message: m || "成功", steps: steps || [] })
 
-// 递归创建目录 同步方法
-function checkDirSync(dirname) {
-    if (fs.existsSync(dirname)) {
-        // console.log('目录已存在：' + dirname)
-        return { message: "目录已存在", state: 1 }
-    } else {
-        if (checkDirSync(Path.dirname(dirname))) {
-            try {
-                fs.mkdirSync(dirname)
-                return { message: "目录已创建", state: 2 }
-            } catch (err) {
-                console.error(err)
-            }
-        }
+function copyDirSync(from, to, options = {}) {
+    const { existsIgnore, copyBeforeClean, overlayFile } = options
+    if (fs.existsSync(to)) {
+        if (existsIgnore) return returnMessage(1, 'ignore', '拷贝操作被忽略')
+        if (copyBeforeClean) fs.rmSync(to, { recursive: true })
     }
-}
-
-function copyDirSync(from, to, clear) {
-    // 如果存在文件夹 先递归删除该文件夹
-    if (fs.existsSync(to) && clear) fs.rmSync(to, { recursive: true })
-    checkDirSync(Path.dirname(to))
-    // 新建文件夹 递归新建
-    fs.mkdirSync(to, { recursive: true });
-    // 读取源文件夹
-    let rd = fs.readdirSync(from)
-    for (const fd of rd) {
-        // 循环拼接源文件夹/文件全名称
-        let fromFullName = from + "/" + fd;
-        // 循环拼接目标文件夹/文件全名称
-        let toFullName = to + "/" + fd;
-        // 读取文件信息
-        let lstatRes = fs.lstatSync(fromFullName)
-        // 是否是文件
-        if (lstatRes.isFile()) fs.copyFileSync(fromFullName, toFullName);
-        // 是否是文件夹
-        if (lstatRes.isDirectory()) copyDirSync(fromFullName, toFullName, clear);
+    fs.mkdirSync(to, { recursive: true })
+    let list = fs.readdirSync(from)
+    for (const item of list) {
+        let fromPath = Path.join(from, item), toPath = Path.join(to, item), statInfo = fs.lstatSync(fromPath)
+        if (statInfo.isFile()) fs.copyFileSync(fromPath, toPath)
+        if (statInfo.isDirectory()) copyDirSync(fromPath, toPath, options)
     }
 }
 
 const writeFile = async (absPath, content, success) => {
     typeof content !== "string" && (content = JSON.stringify(content, null, 4))
-    checkDirSync(Path.dirname(absPath))
+    fs.mkdirSync(Path.dirname(absPath), { recursive: true })
     fs.writeFile(absPath, content, { encoding: 'utf8' }, err => {
         if (err) {
             console.log('UTILS.fs.writeFile', err)
@@ -126,9 +104,8 @@ module.exports = {
         const next = editHandler(fileObj)
         next && writeFile(path, `module.exports = ${JSON.stringify(fileObj, null, 4)}`)
     },
-    mkdirSync(absPath, next) {
-        let res = checkDirSync(absPath)
-        next && next(res)
+    mkdirSync(absPath) {
+        fs.mkdirSync(absPath, { recursive: true })
     },
     saveFile(filePath, fileData) {
         return new Promise((resolve, reject) => {
@@ -156,15 +133,24 @@ module.exports = {
             wstream.on('finish', () => { resolve(true) })
         })
     },
-    copySync(from, to, clear) {
-        let lstat = fs.lstatSync(from)
-        if (lstat.isFile()) {
-            checkDirSync(Path.dirname(to))
+    /**
+     * @param {*} options 
+     * options.existsIgnore       目标(文件、文件夹)存在则忽略拷贝动作
+     * options.copyBeforeCleanDir 拷贝之前清空目标文件夹
+     * options.noOverlayFile      不覆盖文件
+     * @returns 
+     */
+    copySync(from, to, options = {}) {
+        if (fs.existsSync(to) && options.existsIgnore) return
+        const fromInfo = fs.lstatSync(from)
+        if (fromInfo.isFile()) {
+            fs.mkdirSync(Path.dirname(to), { recursive: true })
+            if (fs.existsSync(to) && options.noOverlayFile) return
             fs.copyFileSync(from, to)
             return
         }
         if (Number(major) < 16 || Number(major) == 16 && Number(minor) < 7) {
-            copyDirSync(from, to, clear)
+            copyDirSync(from, to, options)
         } else {
             fs.cpSync(from, to, { force: true, recursive: true })
         }
