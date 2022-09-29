@@ -115,49 +115,50 @@ export const formatDate = function (date, fmt) {
     return fmt;
 };
 
+/**
+ * 日期范围：时长算法
+ */
+export const rangeLatestDate = (num) => {
+    if (typeof num !== 'number') throw 'rangeLatestDate: The wrong parameter was used'
+    const now = new Date()
+    const startStamp = now.getTime() - (num * 24 * 60 * 60 * 1000)
+    return [new Date(startStamp), now];
+};
+export const rangeLatestDateStr = (num) => {
+    const [s, e] = rangeLatestDate(num)
+    return [formatDate(s, "yyyy-MM-dd hh:mm:ss"), formatDate(e, "yyyy-MM-dd hh:mm:ss")];
+};
 
-
-
-
-
-const rangeDataStr = (shifting) => {
+/**
+ * 日期范围：跨天算法
+ */
+export const rangeDataStr = (num) => {
     const dateStampCurrent = new Date().getTime()
-    const dateStampTarget = dateStampCurrent + (shifting * 24 * 60 * 60 * 1000)
+    const dateStampTarget = dateStampCurrent + (num * 24 * 60 * 60 * 1000)
     const dateTarget = new Date(dateStampTarget)
     const s = formatDate(dateTarget, "yyyy-MM-dd 00:00:00");
     const e = formatDate(dateTarget, "yyyy-MM-dd 23:59:59");
     return [s, e];
 };
-const rangeData = (shifting) => {
-    const [s, e] = rangeDataStr(shifting)
+export const rangeData = (num) => {
+    const [s, e] = rangeDataStr(num)
     return [new Date(s), new Date(e)];
 };
-
-const rangeTodayDataStr = () => {
+export const rangeTodayDataStr = () => {
     return rangeDataStr(0);
 };
-const rangeTodayData = () => {
+export const rangeTodayData = () => {
     const [s, e] = rangeTodayDataStr()
     return [new Date(s), new Date(e)];
 };
-
-const rangeYesterdayDataStr = () => {
+export const rangeYesterdayDataStr = () => {
     return rangeDataStr(-1);
 };
-const rangeYesterdayData = () => {
+export const rangeYesterdayData = () => {
     const [s, e] = rangeYesterdayDataStr()
     return [new Date(s), new Date(e)];
 };
 
-export {
-    formatDate,
-    rangeDataStr,
-    rangeData,
-    rangeTodayDataStr,
-    rangeTodayData,
-    rangeYesterdayDataStr,
-    rangeYesterdayData
-}
 
 /**
  * 转化字符串为时间

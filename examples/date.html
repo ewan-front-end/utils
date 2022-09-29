@@ -15,12 +15,16 @@
 </html>
 <script type="module">
     import {
+        rangeLatestDate,
+        rangeLatestDateStr,
         rangeTodayDataStr,
         rangeTodayData,
         rangeYesterdayDataStr,
         rangeYesterdayData
     } from "../src/client/date.js";
 
+    console.log('rangeLatestDate', rangeLatestDate(7));
+    console.log('rangeLatestDateStr', rangeLatestDateStr(15));
     console.log('rangeTodayData:', rangeTodayData());
     console.log('rangeTodayDataStr:', rangeTodayDataStr());
     console.log('rangeYesterdayData:', rangeYesterdayData());
