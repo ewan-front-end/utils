@@ -126,7 +126,7 @@ export const rangeLatestDate = (num) => {
 };
 export const rangeLatestDateStr = (num) => {
     const [s, e] = rangeLatestDate(num)
-    return [formatDate(s, "yyyy-MM-dd hh:mm:ss"), formatDate(e, "yyyy-MM-dd hh:mm:ss")];
+    return [formatDate(s, "yyyy-MM-dd HH:mm:ss"), formatDate(e, "yyyy-MM-dd HH:mm:ss")];
 };
 
 /**
